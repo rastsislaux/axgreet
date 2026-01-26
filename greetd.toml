@@ -1,0 +1,6 @@
+[terminal]
+vt = current
+
+[default_session]
+command = "/tmp/axgreet"
+user = "rastsislau"
