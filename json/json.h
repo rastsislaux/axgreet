@@ -1,11 +1,15 @@
 #ifndef JSON_H
 #define JSON_H
 
+#include <stdbool.h>
+
 enum JSONNodeType {
     OBJECT,
     ARRAY,
     STRING,
-    NUMBER
+    NUMBER,
+    BOOLEAN,
+    NULL_TYPE,
 };
 
 struct JSONObjectPair {
@@ -31,6 +35,10 @@ struct JSONNumber {
     double value;
 };
 
+struct JSONBool {
+    bool value;
+};
+
 struct JSONNode {
     enum JSONNodeType type;
     union {
@@ -38,6 +46,7 @@ struct JSONNode {
         struct JSONArray array;
         struct JSONString string;
         struct JSONNumber number;
+        struct JSONBool boolean;
     } as;
 };
 
@@ -45,11 +54,10 @@ struct JSONNode JSON_String(char* value);
 struct JSONNode JSON_Number(double value);
 struct JSONNode JSON_Object(struct JSONObjectPair* pairs, int size);
 struct JSONNode JSON_Array(struct JSONNode* elements, int size);
+struct JSONNode JSON_Boolean(bool value);
+struct JSONNode JSON_Null();
 
 int JSONNode_serialize(char* buffer, int buffer_length, struct JSONNode* node);
-// char* JSONString_serialize(struct JSONString* string);
-// char* JSONNumber_serialize(struct JSONNumber* number);
-// char* JSONObject_serialize(struct JSONObject* object);
-// char* JSONArray_serialize(struct JSONArray* array);
+struct JSONNode JSONNode_deserialize(char* buffer);
 
 #endif

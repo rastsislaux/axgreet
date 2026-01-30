@@ -1,26 +1,13 @@
+#define DEBUG_LOG_ENABLED 1
+#define TRACE_LOG_ENABLED 1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include "json.h"
-#include "hexutil.h"
 #include "greetd.h"
-
-#define DEBUG_LOG_ENABLED 1
-#define TRACE_LOG_ENABLED 1
-
-#if DEBUG_LOG_ENABLED
-#define DEBUG_LOG(fmt, ...) fprintf(stderr, "[DEBUG] " fmt, ##__VA_ARGS__)
-#else
-#define DEBUG_LOG(fmt, ...)
-#endif
-
-#if TRACE_LOG_ENABLED
-#define TRACE_LOG(fmt, ...) fprintf(stderr, "[TRACE] " fmt, ##__VA_ARGS__)
-#else
-#define TRACE_LOG(fmt, ...)
-#endif
+#include "log.h"
 
 int main() {
     char* greetd_sock = getenv("GREETD_SOCK");

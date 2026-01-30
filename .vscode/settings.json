@@ -1,0 +1,5 @@
+{
+    "lldb.executable": "lldb",
+    "lldb.launch.expressions": "native",
+    "lldb.showDisassembly": "never"
+}

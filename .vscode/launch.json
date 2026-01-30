@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch (lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/axgreet",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build-debug",
+            "stopOnEntry": false,
+            "sourceLanguages": ["c"],
+            "initCommands": [
+                "settings set target.process.stop-on-sharedlibrary-events false",
+                "settings set symbols.enable-external-lookup false",
+                "settings set target.source-map ${workspaceFolder} ${workspaceFolder}"
+            ],
+            "env": {},
+            "console": "integratedTerminal",
+            "showDisassembly": "never",
+            "disableASLR": false,
+            "expressions": "native"
+        }
+    ]
+}

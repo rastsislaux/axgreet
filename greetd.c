@@ -1,10 +1,14 @@
-#include "greetd.h"
+#include "hexutil.h"
 
+#define DEBUG_LOG_ENABLED 1
+#define TRACE_LOG_ENABLED 1
+
+#include "greetd.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include "json.h"
+#include "json/json.h"
 
 int create_socket() {
     int client_fd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -88,32 +92,53 @@ int greetd_init(struct Greetd* greetd, char* greetd_sock) {
     return 0;
 }
 
+int _greetd_write(struct Greetd* greetd, char* buffer) {
+    int length = strlen(buffer);
+    if (write(greetd->client_fd, &length, 4) == -1) {
+        return GREETD_ERROR_SOCKET_WRITE;
+    }
+    if (write(greetd->client_fd, buffer, length) == -1) {
+        return GREETD_ERROR_SOCKET_WRITE;
+    }
+    return 0;
+}
+
+int _greetd_read(struct Greetd* greetd, char* buffer) {
+    int response_length = 0;
+    if (read(greetd->client_fd, &response_length, 4) == -1) {
+        return GREETD_ERROR_SOCKET_READ;
+    }
+    if (read(greetd->client_fd, buffer, response_length) == -1) {
+        return GREETD_ERROR_SOCKET_READ;
+    }
+    return 0;
+}
+
 int greetd_create_session(struct Greetd* greetd, char* username) {
-    char* message_type = "create_session";
-
-    struct JSONNode message_type_node = JSON_String(message_type);
+    struct JSONNode message_type_node = JSON_String("create_session");
     struct JSONNode username_node = JSON_String(username);
-
-    struct JSONObjectPair pairs[] = {
+    struct JSONNode object = JSON_Object((struct JSONObjectPair[]){
         { "type", &message_type_node },
         { "username", &username_node },
-    };
-    struct JSONNode object = JSON_Object(pairs, 2);
+    }, 2);
 
-    char serialized[255];
-    int ok = JSONNode_serialize(serialized, sizeof(serialized), &object);
+    char buffer[255];
+    int ok = JSONNode_serialize(buffer, sizeof(buffer), &object);
     if (ok == -1) {
         return GREETD_ERROR_MESSAGE_SERIALIZATION;
     }
 
-    int length = strlen(serialized);
-
-    char buffer[length + 4];
-    memcpy(buffer, &length, 4);
-    memcpy(buffer + 4, serialized, length);
-
-    if (write(greetd->client_fd, buffer, length + 4) == -1) {
+    if (_greetd_write(greetd, buffer) != 0) {
         return GREETD_ERROR_SOCKET_WRITE;
+    }
+
+    if (_greetd_read(greetd, buffer) != 0) {
+        return GREETD_ERROR_SOCKET_READ;
+    }
+
+    JSONNode_deserialize(buffer);
+    if (ok == -1) {
+        return GREETD_ERROR_MESSAGE_DESERIALIZATION;
     }
 
     return 0;

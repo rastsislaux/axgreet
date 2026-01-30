@@ -2,5 +2,5 @@
 vt = current
 
 [default_session]
-command = "/tmp/axgreet"
+command = "/home/rastsislau/git/axgreet/axgreet"
 user = "rastsislau"
