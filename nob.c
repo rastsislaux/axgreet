@@ -4,12 +4,12 @@
 const char* compiler = "cc";
 const char* output = "axgreet";
 const char* sources[] = {
-    "main.c",
-    "greetd.c",
-    "hexutil.c",
-    "json/json.c",
-    "json/json_lexer.c",
-    "json/json_parser.c",
+    "src/main.c",
+    "src/greetd.c",
+    "src/hexutil.c",
+    "src/json/json.c",
+    "src/json/json_lexer.c",
+    "src/json/json_parser.c",
 };
 
 void test() {
@@ -27,10 +27,20 @@ void test() {
     cmd_run(&cmd);
 }
 
+void clean() {
+    Cmd cmd = { 0 };
+    cmd_append(&cmd, "rm", "-f", output);
+    cmd_run(&cmd);
+}
+
 int main(int argc, char** argv) {
     NOB_GO_REBUILD_URSELF(argc, argv);
 
     int is_debug = argc > 1 && strcmp(argv[1], "debug") == 0;
+    if (argc > 1 && strcmp(argv[1], "clean") == 0) {
+        clean();
+        return 0;
+    }
 
     Cmd cmd = { 0 };
     cmd_append(&cmd, "cc", "-o", output);
@@ -48,7 +58,6 @@ int main(int argc, char** argv) {
         char* command = argv[1];
         if (strcmp(command, "test") == 0) {
             test();
-            return 0;
         }
     }
 
