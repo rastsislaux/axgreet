@@ -1,21 +1,74 @@
 #define NOB_IMPLEMENTATION
-#include "build/nob.h"
+#define NOB_WARN_DEPRECATED
+#define NOB_EXPERIMENTAL_DELETE_OLD
 
-const char* compiler = "cc";
-const char* output = "axgreet";
-const char* sources[] = {
-    "src/main.c",
-    "src/greetd.c",
-    "src/hexutil.c",
-    "src/json/json.c",
-    "src/json/json_lexer.c",
-    "src/json/json_parser.c",
-};
+#include "build/nob.h"
+#include <unistd.h>
+#include <sys/stat.h>
+
+#define NOB_H_REPO "https://github.com/tsoding/nob.h.git"
+#define NOB_H_RAW  "https://raw.githubusercontent.com/tsoding/nob.h/refs/heads/main/nob.h"
+
+#define OUTPUT "axgreet"
+
+void sources(Cmd* cmd) {
+    nob_cc_inputs(cmd, "src/main.c");
+    nob_cc_inputs(cmd, "src/greetd.c");
+    nob_cc_inputs(cmd, "src/hexutil.c");
+    nob_cc_inputs(cmd, "src/json/json.c");
+    nob_cc_inputs(cmd, "src/json/json_lexer.c");
+    nob_cc_inputs(cmd, "src/json/json_parser.c");
+}
+
+void debug_flags(Cmd* cmd) {
+    cmd_append(cmd, "-g", "-O0");
+}
+
+void release_flags(Cmd* cmd) {
+    cmd_append(cmd, "-O2", "-Wall", "-Wextra");
+}
+
+void test();
+void clean();
+static void ensure_nob_h();
+
+int main(int argc, char** argv) {
+    ensure_nob_h();
+    NOB_GO_REBUILD_URSELF(argc, argv);
+
+    int is_debug = argc > 1 && strcmp(argv[1], "debug") == 0;
+    if (argc > 1 && strcmp(argv[1], "clean") == 0) {
+        clean();
+        return 0;
+    }
+
+    Cmd cmd = { 0 };
+    nob_cc(&cmd);
+    nob_cc_output(&cmd, OUTPUT);
+    if (is_debug) {
+        debug_flags(&cmd);
+    } else {
+        release_flags(&cmd);
+    }
+   
+
+    sources(&cmd);
+    cmd_run(&cmd);
+
+    if (argc > 1) {
+        char* command = argv[1];
+        if (strcmp(command, "test") == 0) {
+            test();
+        }
+    }
+
+    return 0;
+}
 
 void test() {
     Cmd cmd = { 0 };
-    char path_to_output[strlen(output) + 2];
-    sprintf(path_to_output, "./%s", output);
+    char path_to_output[sizeof(OUTPUT) + 2];
+    sprintf(path_to_output, "./%s", OUTPUT);
 
     cmd_append(&cmd, "chmod", "+x", path_to_output);
     cmd_run(&cmd);
@@ -29,37 +82,31 @@ void test() {
 
 void clean() {
     Cmd cmd = { 0 };
-    cmd_append(&cmd, "rm", "-f", output);
+    cmd_append(&cmd, "rm", "-f", OUTPUT);
     cmd_run(&cmd);
 }
 
-int main(int argc, char** argv) {
-    NOB_GO_REBUILD_URSELF(argc, argv);
-
-    int is_debug = argc > 1 && strcmp(argv[1], "debug") == 0;
-    if (argc > 1 && strcmp(argv[1], "clean") == 0) {
-        clean();
-        return 0;
+static void ensure_nob_h(void) {
+    if (access("build/nob.h", F_OK) == 0) {
+        return;
     }
-
-    Cmd cmd = { 0 };
-    cmd_append(&cmd, "cc", "-o", output);
-    if (is_debug) {
-        cmd_append(&cmd, "-g", "-O0");
-    } else {
-        cmd_append(&cmd, "-O2", "-Wall", "-Wextra");
+    nob_log(NOB_INFO, "build/nob.h not found, fetching...\n");
+    if (mkdir("build", 0755) != 0 && errno != EEXIST) {
+        nob_log(NOB_INFO, "failed to create build/: %s\n", strerror(errno));
+        exit(1);
     }
-    for (int i = 0; i < sizeof(sources) / sizeof(sources[0]); i++) {
-        cmd_append(&cmd, sources[i]);
+    int ret = system("git clone --depth 1 " NOB_H_REPO " build/.nob_h_repo "
+                     "&& cp build/.nob_h_repo/nob.h build/nob.h "
+                     "&& rm -rf build/.nob_h_repo");
+    if (ret != 0) {
+        ret = system("curl -L -s -o build/nob.h " NOB_H_RAW);
     }
-    cmd_run(&cmd);
-
-    if (argc > 1) {
-        char* command = argv[1];
-        if (strcmp(command, "test") == 0) {
-            test();
-        }
+    if (ret != 0) {
+        ret = system("wget -q -O build/nob.h " NOB_H_RAW);
     }
-
-    return 0;
+    if (ret != 0) {
+        nob_log(NOB_ERROR, "failed to fetch nob.h (tried git, curl, wget)\n");
+        exit(1);
+    }
+    nob_log(NOB_INFO, "fetched build/nob.h\n");
 }

@@ -10,10 +10,9 @@ axgreet uses [nob](https://github.com/tsoding/nob.h) as build system.
 
 ### quick start:
 
-prerequisites: C compiler, curl, bash.
+prerequisites: git
 
 ```bash
-$ ./bootstrap.sh # just once
 $ ./nob
 ```
 
@@ -21,13 +20,12 @@ With nob, build instructions are stored as C code in `nob.c`.
 
 ### manual bootstrap
 
-if you don't have bash / curl or operating in some other kind of wild environment, you can bootstrap nob yourself.
+if you don't have git/curl/wget or operating in some other kind of wild environment, you can bootstrap nob yourself.
 
-download [nob.h](https://raw.githubusercontent.com/tsoding/nob.h/refs/heads/main/nob.h) to `build` folder, then compile `nob.c` and run nob executable. E.g.:
+download [nob.h](https://raw.githubusercontent.com/tsoding/nob.h/refs/heads/main/nob.h) to `build` folder, then run nob executable. E.g.:
 ```bash
 $ mkdir build
 $ wget https://raw.githubusercontent.com/tsoding/nob.h/refs/heads/main/nob.h -o build/nob.h
-$ cc -o ./nob nob.c
 $ ./nob
 ```
 
