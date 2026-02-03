@@ -10,6 +10,7 @@ enum JSONNodeType {
     NUMBER,
     BOOLEAN,
     NULL_TYPE,
+    ERROR,
 };
 
 struct JSONObjectPair {
@@ -50,6 +51,9 @@ struct JSONNode {
     } as;
 };
 
+// TODO: Will be deleted, since I only actually need deserialization.
+// int JSONNode_serialize(char* buffer, int buffer_length, struct JSONNode* node);
+
 struct JSONNode JSON_String(char* value);
 struct JSONNode JSON_Number(double value);
 struct JSONNode JSON_Object(struct JSONObjectPair* pairs, int size);
@@ -57,7 +61,8 @@ struct JSONNode JSON_Array(struct JSONNode* elements, int size);
 struct JSONNode JSON_Boolean(bool value);
 struct JSONNode JSON_Null();
 
-int JSONNode_serialize(char* buffer, int buffer_length, struct JSONNode* node);
+struct JSONNode* JSONObject_get(struct JSONObject node, char* key);
 struct JSONNode JSONNode_deserialize(char* buffer);
+void JSONNode_free(struct JSONNode* node);
 
 #endif

@@ -34,10 +34,9 @@ struct JSONLexer {
 };
 
 void JSONLexer_init(struct JSONLexer* lexer, char* buffer);
-bool JSONLexer_is_whitespace(char c);
+
 struct JSONToken JSONLexer_next(struct JSONLexer* lexer);
 struct JSONToken JSONLexer_peek(struct JSONLexer* lexer);
 void JSONLexer_free_token(struct JSONToken token);
-void JSONLexer_debug_print_token(struct JSONToken token);
 
 #endif

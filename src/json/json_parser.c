@@ -9,7 +9,7 @@ struct JSONNode _JSONNode_deserialize(struct JSONLexer* lexer);
 // Assumes, that the array is already started.
 struct JSONNode JSONNode_deserialize_array(struct JSONLexer* lexer) {
     int size = 0;
-    struct JSONNode* elements = malloc(sizeof(struct JSONNode) * 0);
+    struct JSONNode* elements = malloc(sizeof(struct JSONNode) * 1);
 
     struct JSONToken last_token;
     while (true) {

@@ -2,3 +2,4 @@ main
 nob.old
 build/
 axgreet
+*.o

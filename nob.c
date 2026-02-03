@@ -51,9 +51,11 @@ int main(int argc, char** argv) {
         release_flags(&cmd);
     }
    
-
     sources(&cmd);
-    cmd_run(&cmd);
+    if (cmd_run(&cmd) != 1) {
+        nob_log(NOB_ERROR, "failed to build %s\n", OUTPUT);
+        exit(1);
+    }
 
     if (argc > 1) {
         char* command = argv[1];
@@ -73,7 +75,7 @@ void test() {
     cmd_append(&cmd, "chmod", "+x", path_to_output);
     cmd_run(&cmd);
 
-    cmd_append(&cmd, "sudo", "greetd", "--vt", "2", "--config", "greetd.toml");
+    cmd_append(&cmd, "sudo", "greetd", "--vt", "4", "--config", "greetd.toml");
     cmd_run(&cmd);
 
     cmd_append(&cmd, "rm", "/tmp/axgreet");

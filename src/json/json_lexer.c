@@ -1,22 +1,39 @@
 #include "json_lexer.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <ctype.h>
 
 #define BUFFER_SIZE 255
+
+// Uncomment this to print the tokens as they are being parsed.
+// This is useful for debugging the lexer.
+// #define PRINT_TOKENS
+
+#ifdef PRINT_TOKENS
+#include <stdio.h>
+#endif
 
 void JSONLexer_init(struct JSONLexer* lexer, char* buffer) {
     lexer->buffer = buffer;
     lexer->position = 0;
     lexer->buffer_length = strlen(buffer);
+
+    #ifdef PRINT_TOKENS
+        printf("\n");
+    #endif
 }
 
 bool JSONLexer_is_whitespace(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-struct JSONToken JSONLexer_next(struct JSONLexer* lexer) {
+#ifdef PRINT_TOKENS
+struct JSONToken _JSONLexer_next(struct JSONLexer* lexer)
+#endif
+#ifndef PRINT_TOKENS
+struct JSONToken JSONLexer_next(struct JSONLexer* lexer)
+#endif
+{
     while (JSONLexer_is_whitespace(lexer->buffer[lexer->position])) {
         lexer->position++;
     }
@@ -61,6 +78,7 @@ struct JSONToken JSONLexer_next(struct JSONLexer* lexer) {
             }
         }
         lexer->position++;
+        value[i] = '\0';
         struct JSONToken token = { .type = JSON_STRING, .value.string = value };
         return token;
     }
@@ -128,9 +146,23 @@ struct JSONToken JSONLexer_next(struct JSONLexer* lexer) {
     return token;
 }
 
+#ifdef PRINT_TOKENS
+void __print_token(struct JSONToken token);
+struct JSONToken JSONLexer_next(struct JSONLexer* lexer) {
+    struct JSONToken token = _JSONLexer_next(lexer);
+    __print_token(token);
+    printf(", ");
+    return token;
+}
+#endif
+
 struct JSONToken JSONLexer_peek(struct JSONLexer* lexer) {
     int position = lexer->position;
+#ifdef PRINT_TOKENS
+    struct JSONToken token = _JSONLexer_next(lexer);
+#else
     struct JSONToken token = JSONLexer_next(lexer);
+#endif
     lexer->position = position;
     return token;
 }
@@ -141,46 +173,49 @@ void JSONLexer_free_token(struct JSONToken token) {
     }
 }
 
-void JSONLexer_debug_print_token(struct JSONToken token) {
+#ifdef PRINT_TOKENS
+void __print_token(struct JSONToken token)
+{
     switch (token.type) {
         case JSON_OBJECT_START:
-            printf("[ObjectStart]");
+            printf("JSON_OBJECT_START");
             break;
         case JSON_OBJECT_END:
-            printf("[ObjectEnd]");
+            printf("JSON_OBJECT_END");
             break;
         case JSON_ARRAY_START:
-            printf("[ArrayStart]");
+            printf("JSON_ARRAY_START");
             break;
         case JSON_ARRAY_END:
-            printf("[ArrayEnd]");
+            printf("JSON_ARRAY_END");
             break;
         case JSON_STRING:
-            printf("[String, value=%s]", token.value.string);
+            printf("JSON_STRING(\"%s\")", token.value.string);
             break;
         case JSON_NUMBER:
-            printf("[Number, value=%f]", token.value.number);
+            printf("JSON_NUMBER(%g)", token.value.number);
             break;
         case JSON_TRUE:
-            printf("[True]");
+            printf("JSON_TRUE");
             break;
         case JSON_FALSE:
-            printf("[False]");
+            printf("JSON_FALSE");
             break;
         case JSON_NULL:
-            printf("[Null]");
+            printf("JSON_NULL");
             break;
         case JSON_COMMA:
-            printf("[Comma]");
+            printf("JSON_COMMA");
             break;
         case JSON_COLON:
-            printf("[Colon]");
+            printf("JSON_COLON");
             break;
         case JSON_EOF:
-            printf("[EOF]");
+            printf("JSON_EOF");
             break;
         case JSON_ERROR:
-            printf("[Error]");
+            printf("JSON_ERROR");
             break;
     }
 }
+#endif

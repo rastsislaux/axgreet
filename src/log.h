@@ -3,16 +3,8 @@
 
 #include <stdio.h>
 
-#if DEBUG_LOG_ENABLED
-#define DEBUG_LOG(fmt, ...) fprintf(stderr, "[DEBUG] " fmt, ##__VA_ARGS__)
-#else
-#define DEBUG_LOG(fmt, ...)
-#endif
-
-#if TRACE_LOG_ENABLED
-#define TRACE_LOG(fmt, ...) fprintf(stderr, "[TRACE] " fmt, ##__VA_ARGS__)
-#else
-#define TRACE_LOG(fmt, ...)
-#endif
+#define ERROR_LOG(fmt, ...) fprintf(stderr, "[ERROR] [" __FILE__ ":%d] " fmt, __LINE__, ##__VA_ARGS__)
+#define DEBUG_LOG(fmt, ...) fprintf(stderr, "[DEBUG] [" __FILE__ ":%d] " fmt, __LINE__, ##__VA_ARGS__)
+#define TRACE_LOG(fmt, ...) fprintf(stderr, "[TRACE] [" __FILE__ ":%d] " fmt, __LINE__, ##__VA_ARGS__)
 
 #endif
