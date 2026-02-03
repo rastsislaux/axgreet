@@ -6,8 +6,6 @@
 #include <stdio.h>
 
 #include "greetd.h"
-#include "json/json.h"
-#include "log.h"
 
 #define RESPONSE_BUFFER_SIZE 255
 #define JSON_ARRAY_BUFFER_SIZE 1024
@@ -352,8 +350,6 @@ struct Greetd_Response __greetd_get_response(struct Greetd* greetd)
 }
 
 int __greetd_write(struct Greetd* greetd, char* buffer) {
-    TRACE_LOG("Writing to greetd socket: %s\n", buffer);
-
     int length = strlen(buffer);
     if (write(greetd->client_fd, &length, 4) == -1) {
         return -1;
@@ -373,7 +369,5 @@ int __greetd_read(struct Greetd* greetd, char* buffer) {
         return -1;
     }
     buffer[response_length] = '\0';
-
-    TRACE_LOG("Read from greetd socket: %s\n", buffer);
     return 0;
 }

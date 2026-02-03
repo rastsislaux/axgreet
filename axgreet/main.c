@@ -6,7 +6,6 @@
 #include "greetd.h"
 #include "log.h"
 #include <termios.h>
-#include "json/json.h"
 
 #define NOT_IMPLEMENTED_YET do { \
     ERROR_LOG(__FILE__ ":%d: Not implemented yet\n", __LINE__); \

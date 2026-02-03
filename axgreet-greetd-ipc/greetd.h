@@ -1,7 +1,7 @@
 #ifndef GREETD_H
 #define GREETD_H
 
-#include "json/json.h"
+#include "json.h"
 
 #define GREETD_ERROR_SOCKET_CREATION -1
 #define GREETD_ERROR_SOCKET_CONNECTION -2
